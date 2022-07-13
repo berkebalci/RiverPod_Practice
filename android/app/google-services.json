@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "399506275293",
+    "project_id": "notdefteri-3ffb3",
+    "storage_bucket": "notdefteri-3ffb3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:399506275293:android:a5ddcf7877dc2915f61434",
+        "android_client_info": {
+          "package_name": "com.example.firebase_uygulamasi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "399506275293-0830ckd0dbtpkus3a3rvspasj3g18fk5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWu4AFk-zZnWMIwsUJBrJdK2iMUQZdJ08"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "399506275293-0830ckd0dbtpkus3a3rvspasj3g18fk5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
