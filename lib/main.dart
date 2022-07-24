@@ -1,3 +1,5 @@
+import 'package:firebase_uygulamasi/Recipes/Yemek_Tarifleri.dart';
+import 'package:firebase_uygulamasi/list_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,10 +11,12 @@ final counterProvider = StateProvider(((ref) {
 
 //'autoDispose' ile widget'in dispose olduğu durumlarda(Farklı bir sayfaya geçme vs.)
 //**bu widget'e bağlı Provider'in da dispose olmasını sağlıyoruz.
-
 //Böylece yaptığımız uygulamada farklı bir sayfaya geçtiğimizde counterProvider oto
 //**silindiğinden dolayı 0'dan tekrar tekrar başlıyor.
 
+final boolProvider = StateProvider((ref) {
+  return true;
+});
 Future main() async {
   //Firebase kullanacağımızdan dolayı Future ifadesi var.
   WidgetsFlutterBinding.ensureInitialized(); //Firebase bağlantısı
@@ -26,7 +30,6 @@ Future main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     //Burdaki 'ref' ile watch,listen ve read yapabileceğiz.
@@ -55,16 +58,19 @@ class HomePage extends StatelessWidget {
         appBar: AppBar(
           title: Text("Home"),
         ),
-        body: Center(
-            child: ElevatedButton(
-          child: Text("Go to the Counter page"),
-          onPressed: () {
-            Navigator.of(context).push(
-              //Navigation
-              MaterialPageRoute(builder: (((context) => CounterPage()))),
-            );
-          },
-        )));
+        body: Column(
+          children: [
+            ElevatedButton(
+              child: Text("Go to the Counter page"),
+              onPressed: () {
+                Navigator.of(context).push(
+                  //Navigation
+                  MaterialPageRoute(builder: (((context) => CounterPage()))),
+                );
+              },
+            ),
+          ],
+        ));
   }
 }
 
@@ -78,11 +84,11 @@ class CounterPage extends ConsumerWidget {
     //Bu aslında Getx'de olan variable.obs yapısına benzemektedir.
 
     //watch state'de değişiklik gördüğünde içinde olduğu widget'i rebuild etmektedir.
-
     //**Sayı 5'i geçtiği zaman uyarı barı göstermek(Alert bar) */
     ref.listen<int>(counterProvider, ((previous, next) {
+      //next ifadesi şu andaki değerimizi belirtmektedir.
       //Burdaki int ifadesini eklemessek 'if' ifadesinde hata alırız.
-      //next = current value
+
       if (next > 6) {
         showDialog(
             context: context,
@@ -104,28 +110,49 @@ class CounterPage extends ConsumerWidget {
     }));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Counter Page"),
-        leading: IconButton(
-            //Ekrandaki sayinin default değere(state'e) dönmesini sağlıcak.
-            icon: Icon(Icons.refresh),
+        appBar: AppBar(
+          title: Text("Counter Page"),
+          leading: IconButton(
+              //Ekrandaki sayinin default değere(state'e) dönmesini sağlıcak.
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                ref.invalidate(
+                    counterProvider); //Böylece counterProvider'e default state'ini verdik.
+              }),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '$counter',
+              style: Theme.of(context).textTheme.displayMedium,
+            ),
+            List_Widget(),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (((context) => 
+                    RecipeCard(
+                      cookTime: '25 Minutes', 
+                      rating: '4.5', 
+                      thumbnailUrl: 'https://lh3.googleusercontent.com/ei5eF1LRFkkcekhjdR_8XgOqgdjpomf-rda_vvh7jIauCgLlEWORINSKMRR6I6iTcxxZL9riJwFqKMvK0ixS0xwnRHGMY4I5Zw=s360', 
+                      title: 'Chinese Waffle',))))
+                  );
+                },
+                child: Text(
+                  "YemekTarifleri",
+                  style: TextStyle(fontSize: 45),
+                ))
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.add),
             onPressed: () {
-              ref.invalidate(
-                  counterProvider); //Böylece counterProvider'e default state'ini verdik.
-            }),
-      ),
-      body: Center(
-          child: Text(
-        '$counter',
-        style: Theme.of(context).textTheme.displayMedium,
-      )),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          ref.read(counterProvider.notifier).state++; //state'i arttiriyoruz.
-          //State bizim durumumuzda
-        },
-      ),
-    );
+              ref
+                  .read(counterProvider.notifier)
+                  .state++; //state'i arttiriyoruz.
+              //State bizim durumumuzda
+            }));
   }
 }
