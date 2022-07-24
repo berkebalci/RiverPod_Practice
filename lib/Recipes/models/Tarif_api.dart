@@ -16,7 +16,7 @@ class TarifApi {
     });
 
     Map data = jsonDecode(response.body);
-    List temp_list = []; // API'den gelicek tarifler verileri için geçici liste
+    List temp_list = []; // API'den gelicek tarifler verileri için geçici listee
 
     for (var x in data['feed']) {
       temp_list.add(x["content"]["details"]);
