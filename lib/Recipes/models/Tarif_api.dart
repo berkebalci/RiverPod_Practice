@@ -6,8 +6,9 @@ class TarifApi {
   
   static Future<List<Tarif>> getTarif() async {
     var uri = Uri.https("yummly2.p.rapidapi.com", "/feeds/list", {
-      "limit": "24",
+      "limit": "18",
       "start": "0",
+      "tag":"list.recipe.popular"
     });
     final response = await http.get(uri, headers: {
       "X-RapidAPI-Key": "f7cc919b6amsh1036e32733a2345p1db547jsnd633440c32fa",
@@ -16,7 +17,7 @@ class TarifApi {
     });
 
     Map data = jsonDecode(response.body);
-    List temp_list = []; // API'den gelicek tarifler verileri için geçici listee
+    List temp_list = []; // API'den gelicek tarifler verileri için geçici liste
 
     for (var x in data['feed']) {
       temp_list.add(x["content"]["details"]);

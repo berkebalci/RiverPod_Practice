@@ -1,8 +1,11 @@
 import 'package:firebase_uygulamasi/Recipes/Yemek_Tarifleri.dart';
+import 'package:firebase_uygulamasi/Recipes/models/Tarif.dart';
+import 'package:firebase_uygulamasi/Recipes/models/Tarif_api.dart';
 import 'package:firebase_uygulamasi/list_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_uygulamasi/Recipes/Yemek_Tarifleri.dart';
 
 final counterProvider = StateProvider(((ref) {
   return 0;
@@ -17,6 +20,7 @@ final counterProvider = StateProvider(((ref) {
 final boolProvider = StateProvider((ref) {
   return true;
 });
+
 Future main() async {
   //Firebase kullanacağımızdan dolayı Future ifadesi var.
   WidgetsFlutterBinding.ensureInitialized(); //Firebase bağlantısı
@@ -73,10 +77,31 @@ class HomePage extends StatelessWidget {
         ));
   }
 }
+/*
+/* Tarif bölümü*/
+var _tarifler;
+
+Future<List> getTarifler() async {
+  _tarifler = await TarifApi.getTarif();
+  /*setState(() {
+      _isloading = false;
+    });*/
+  print(_tarifler);
+  return _tarifler;
+}
+
+//bool _isloading = true;
+
+final tarif_provider = FutureProvider(((ref) {
+  return getTarifler();
+}));
+/* Tarif bölümü*/
+*/
 
 class CounterPage extends ConsumerWidget {
   //Widget'in Providerlara erişmesi için  elzem nokta!!
-  const CounterPage({Key? key}) : super(key: key);
+  CounterPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final int counter = ref.watch(counterProvider); //Böylece counterProvider'in
@@ -88,7 +113,7 @@ class CounterPage extends ConsumerWidget {
     ref.listen<int>(counterProvider, ((previous, next) {
       //next ifadesi şu andaki değerimizi belirtmektedir.
       //Burdaki int ifadesini eklemessek 'if' ifadesinde hata alırız.
-
+      
       if (next > 6) {
         showDialog(
             context: context,
@@ -108,6 +133,7 @@ class CounterPage extends ConsumerWidget {
             });
       }
     }));
+    //final tarif_listesi = ref.watch(tarif_provider);
 
     return Scaffold(
         appBar: AppBar(
@@ -120,32 +146,51 @@ class CounterPage extends ConsumerWidget {
                     counterProvider); //Böylece counterProvider'e default state'ini verdik.
               }),
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '$counter',
-              style: Theme.of(context).textTheme.displayMedium,
-            ),
-            List_Widget(),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (((context) => 
-                    RecipeCard(
-                      cookTime: '25 Minutes', 
-                      rating: '4.5', 
-                      thumbnailUrl: 'https://lh3.googleusercontent.com/ei5eF1LRFkkcekhjdR_8XgOqgdjpomf-rda_vvh7jIauCgLlEWORINSKMRR6I6iTcxxZL9riJwFqKMvK0ixS0xwnRHGMY4I5Zw=s360', 
-                      title: 'Chinese Waffle',))))
-                  );
-                },
-                child: Text(
-                  "YemekTarifleri",
-                  style: TextStyle(fontSize: 45),
-                ))
-          ],
-        ),
+        body: Stack(children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "$counter",
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
+              List_Widget(),
+              
+        //!! API işlem yeri!!
+              
+              /*ElevatedButton(
+                  onPressed: () {
+                    FittedBox(
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: 3,
+                          itemBuilder: (context, index) => RecipeCard(
+                                cookTime:
+                                    '${ref.read(tarif_provider.notifier)}',
+                                rating: '${ref.read(tarif_provider.notifier)}',
+                                thumbnailUrl:
+                                    '${ref.read(tarif_provider.notifier)}',
+                                title: '${ref.read(tarif_provider.notifier)}',
+                              )),
+                    );
+                    //Todo: Bu kısmın çalışması düzeltilecek
+                  },
+                  child: Text(
+                    "YemekTarifleri",
+                    style: TextStyle(fontSize: 45),
+                  ))*/
+            ],
+          ),
+        ElevatedButton(onPressed: (){
+                Navigator.of(context).push(
+                  //Navigation
+                  MaterialPageRoute(builder: (((context) => CounterPage()))),
+                );
+
+        }, child: Text("Future_Provider"))
+        ]),
+        
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
