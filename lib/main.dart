@@ -7,6 +7,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_uygulamasi/Recipes/Yemek_Tarifleri.dart';
 
+import 'Test_Providers/Future_Provider.dart';
+
 final counterProvider = StateProvider(((ref) {
   return 0;
 })); //Read ve Modify yapabilcez
@@ -20,6 +22,33 @@ final counterProvider = StateProvider(((ref) {
 final boolProvider = StateProvider((ref) {
   return true;
 });
+final streamprovider = StreamProvider<int>( 
+  //Bir provider'dan başka bir Provider'a ulaştık
+  (ref) {
+    final wsClient = ref.watch(websocketClientProvider);
+    return wsClient.getCounterStream();
+  },
+);
+
+//Sahte Websocket oluşturuyoruz
+abstract class WebsocketClient {
+  Stream<int> getCounterStream();
+}
+
+class FakeWebsocketClient implements WebsocketClient {
+  @override
+  Stream<int> getCounterStream() async* {
+    int i = 0;
+    while (true) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      yield i++;
+    }
+  }
+}
+
+final websocketClientProvider = Provider<WebsocketClient>(((ref) {
+  return FakeWebsocketClient();
+}));
 
 Future main() async {
   //Firebase kullanacağımızdan dolayı Future ifadesi var.
@@ -113,7 +142,7 @@ class CounterPage extends ConsumerWidget {
     ref.listen<int>(counterProvider, ((previous, next) {
       //next ifadesi şu andaki değerimizi belirtmektedir.
       //Burdaki int ifadesini eklemessek 'if' ifadesinde hata alırız.
-      
+
       if (next > 6) {
         showDialog(
             context: context,
@@ -156,9 +185,9 @@ class CounterPage extends ConsumerWidget {
                 style: Theme.of(context).textTheme.displayMedium,
               ),
               List_Widget(),
-              
-        //!! API işlem yeri!!
-              
+
+              //!! API işlem yeri!!
+
               /*ElevatedButton(
                   onPressed: () {
                     FittedBox(
@@ -182,15 +211,18 @@ class CounterPage extends ConsumerWidget {
                   ))*/
             ],
           ),
-        ElevatedButton(onPressed: (){
+          //!!! Future_Provider öğrenme yeri !!!
+
+          /*ElevatedButton(
+          onPressed: (){
                 Navigator.of(context).push(
                   //Navigation
-                  MaterialPageRoute(builder: (((context) => CounterPage()))),
+                  MaterialPageRoute(builder: (((context) => Future_Provider()))),
                 );
 
-        }, child: Text("Future_Provider"))
+        }, 
+        child: Text("Future_Provider"))*/
         ]),
-        
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
