@@ -1,13 +1,7 @@
-import 'package:firebase_uygulamasi/Recipes/Yemek_Tarifleri.dart';
-import 'package:firebase_uygulamasi/Recipes/models/Tarif.dart';
-import 'package:firebase_uygulamasi/Recipes/models/Tarif_api.dart';
 import 'package:firebase_uygulamasi/list_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_uygulamasi/Recipes/Yemek_Tarifleri.dart';
-
-import 'Test_Providers/Future_Provider.dart';
 
 final counterProvider = StateProvider(((ref) {
   return 0;
@@ -22,7 +16,8 @@ final counterProvider = StateProvider(((ref) {
 final boolProvider = StateProvider((ref) {
   return true;
 });
-final streamprovider = StreamProvider<int>( 
+
+final streamprovider = StreamProvider<int>(
   //Bir provider'dan başka bir Provider'a ulaştık
   (ref) {
     final wsClient = ref.watch(websocketClientProvider);
@@ -35,7 +30,14 @@ abstract class WebsocketClient {
   Stream<int> getCounterStream();
 }
 
+final websocketClientProvider = Provider<WebsocketClient>(((ref) {
+  return FakeWebsocketClient();
+}));
+
 class FakeWebsocketClient implements WebsocketClient {
+  //Buradaki 'implements' keywordu 'extends' ile benzer amaca sahiptir.
+  //implement >>> Parent class'ın //TODO: implements keywordunun görevini anla(Stackoverflow)
+
   @override
   Stream<int> getCounterStream() async* {
     int i = 0;
@@ -45,10 +47,6 @@ class FakeWebsocketClient implements WebsocketClient {
     }
   }
 }
-
-final websocketClientProvider = Provider<WebsocketClient>(((ref) {
-  return FakeWebsocketClient();
-}));
 
 Future main() async {
   //Firebase kullanacağımızdan dolayı Future ifadesi var.
@@ -128,7 +126,8 @@ final tarif_provider = FutureProvider(((ref) {
 */
 
 class CounterPage extends ConsumerWidget {
-  //Widget'in Providerlara erişmesi için  elzem nokta!!
+  //ConsumerWidget kısmı widget'in Providerlara erişmesi için  elzem nokta!!
+
   CounterPage({Key? key}) : super(key: key);
 
   @override
@@ -136,6 +135,7 @@ class CounterPage extends ConsumerWidget {
     final int counter = ref.watch(counterProvider); //Böylece counterProvider'in
     //**state'i her değiştiğinde bu widget rebuild olacak.
     //Bu aslında Getx'de olan variable.obs yapısına benzemektedir.
+    //Ayrıca fark edildiği gibi 'watch' fonksiyonu 'counter' değişkenine Provider'in yeni değerini döndürüyor.
 
     //watch state'de değişiklik gördüğünde içinde olduğu widget'i rebuild etmektedir.
     //**Sayı 5'i geçtiği zaman uyarı barı göstermek(Alert bar) */
@@ -171,7 +171,7 @@ class CounterPage extends ConsumerWidget {
               //Ekrandaki sayinin default değere(state'e) dönmesini sağlıcak.
               icon: Icon(Icons.refresh),
               onPressed: () {
-                ref.invalidate(
+                ref.invalidate(//invalidate = geçersiz kilmak
                     counterProvider); //Böylece counterProvider'e default state'ini verdik.
               }),
         ),
