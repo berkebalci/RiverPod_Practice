@@ -1,7 +1,10 @@
+import 'package:firebase_uygulamasi/Test_Providers/Stream_Provider.dart';
 import 'package:firebase_uygulamasi/list_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'Test_Providers/Future_Provider.dart';
 
 final counterProvider = StateProvider(((ref) {
   return 0;
@@ -36,7 +39,6 @@ final websocketClientProvider = Provider<WebsocketClient>(((ref) {
 
 class FakeWebsocketClient implements WebsocketClient {
   //Buradaki 'implements' keywordu 'extends' ile benzer amaca sahiptir.
-  //implement >>> Parent class'ın //TODO: implements keywordunun görevini anla(Stackoverflow)
 
   @override
   Stream<int> getCounterStream() async* {
@@ -104,26 +106,6 @@ class HomePage extends StatelessWidget {
         ));
   }
 }
-/*
-/* Tarif bölümü*/
-var _tarifler;
-
-Future<List> getTarifler() async {
-  _tarifler = await TarifApi.getTarif();
-  /*setState(() {
-      _isloading = false;
-    });*/
-  print(_tarifler);
-  return _tarifler;
-}
-
-//bool _isloading = true;
-
-final tarif_provider = FutureProvider(((ref) {
-  return getTarifler();
-}));
-/* Tarif bölümü*/
-*/
 
 class CounterPage extends ConsumerWidget {
   //ConsumerWidget kısmı widget'in Providerlara erişmesi için  elzem nokta!!
@@ -163,6 +145,7 @@ class CounterPage extends ConsumerWidget {
       }
     }));
     //final tarif_listesi = ref.watch(tarif_provider);
+    final AsyncValue<int> counter2 = ref.watch(streamprovider); //Stream provider'in gözlemcisi
 
     return Scaffold(
         appBar: AppBar(
@@ -175,7 +158,7 @@ class CounterPage extends ConsumerWidget {
                     counterProvider); //Böylece counterProvider'e default state'ini verdik.
               }),
         ),
-        body: Stack(children: [
+        body: Stack(alignment: Alignment.center, children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -185,50 +168,34 @@ class CounterPage extends ConsumerWidget {
                 style: Theme.of(context).textTheme.displayMedium,
               ),
               List_Widget(),
-
-              //!! API işlem yeri!!
-
-              /*ElevatedButton(
-                  onPressed: () {
-                    FittedBox(
-                      child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: 3,
-                          itemBuilder: (context, index) => RecipeCard(
-                                cookTime:
-                                    '${ref.read(tarif_provider.notifier)}',
-                                rating: '${ref.read(tarif_provider.notifier)}',
-                                thumbnailUrl:
-                                    '${ref.read(tarif_provider.notifier)}',
-                                title: '${ref.read(tarif_provider.notifier)}',
-                              )),
-                    );
-                    //Todo: Bu kısmın çalışması düzeltilecek
-                  },
+              ElevatedButton(
                   child: Text(
-                    "YemekTarifleri",
-                    style: TextStyle(fontSize: 45),
-                  ))*/
+                    "Future Provider",
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (((context) => (Future_Provider())))));
+                  }),
+              ElevatedButton(
+                  child: Text(
+                    "Stream Provider",
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (((context) => (Stream_Provider())))));
+                  }),
+                  Text(counter2.when(
+                    data: (int value) => value.toString(), 
+                    error: (Object a,_) => "$a", 
+                    loading: () => 0.toString()))
+                    //TODO: User'in başlama değerini vermesini sağla!
             ],
           ),
-          //!!! Future_Provider öğrenme yeri !!!
-
-          /*ElevatedButton(
-          onPressed: (){
-                Navigator.of(context).push(
-                  //Navigation
-                  MaterialPageRoute(builder: (((context) => Future_Provider()))),
-                );
-
-        }, 
-        child: Text("Future_Provider"))*/
         ]),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
-              ref
-                  .read(counterProvider.notifier)
-                  .state++; //state'i arttiriyoruz.
+              ref.read(counterProvider.notifier).state++; //state'i arttiriyoruz.
               //State bizim durumumuzda
             }));
   }
