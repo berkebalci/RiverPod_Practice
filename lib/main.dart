@@ -20,17 +20,19 @@ final boolProvider = StateProvider((ref) {
   return true;
 });
 
-final streamprovider = StreamProvider<int>(
-  //Bir provider'dan başka bir Provider'a ulaştık
-  (ref) {
+final streamprovider = StreamProvider.autoDispose.family<int, int>(
+  (ref, start) {
+    //Kullanicinin başlama değerini girmesi
+    //**için 'family' modifier'ini kullanıcaz.
+    //Bir provider'dan başka bir Provider'a ulaştık
     final wsClient = ref.watch(websocketClientProvider);
-    return wsClient.getCounterStream();
+    return wsClient.getCounterStream(start);
   },
 );
 
 //Sahte Websocket oluşturuyoruz
 abstract class WebsocketClient {
-  Stream<int> getCounterStream();
+  Stream<int> getCounterStream([int start = 0]);
 }
 
 final websocketClientProvider = Provider<WebsocketClient>(((ref) {
@@ -41,15 +43,16 @@ class FakeWebsocketClient implements WebsocketClient {
   //Buradaki 'implements' keywordu 'extends' ile benzer amaca sahiptir.
 
   @override
-  Stream<int> getCounterStream() async* {
-    int i = 0;
+  Stream<int> getCounterStream([int start = 0]) async* {
+    int i = start;
     while (true) {
-      await Future.delayed(const Duration(milliseconds: 500));
       yield i++;
+      await Future.delayed(const Duration(milliseconds: 500));
     }
   }
 }
 
+int user_value = 0;
 Future main() async {
   //Firebase kullanacağımızdan dolayı Future ifadesi var.
   WidgetsFlutterBinding.ensureInitialized(); //Firebase bağlantısı
@@ -82,8 +85,20 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final controller = TextEditingController();
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +107,7 @@ class HomePage extends StatelessWidget {
           title: Text("Home"),
         ),
         body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
               child: Text("Go to the Counter page"),
@@ -102,6 +118,17 @@ class HomePage extends StatelessWidget {
                 );
               },
             ),
+            SizedBox(
+              width: 30,
+            ),
+            TextField(
+              controller: controller,
+            ),
+            IconButton(
+                onPressed: () {
+                  user_value = int.parse(controller.text);
+                },
+                icon: Icon(Icons.add_task))
           ],
         ));
   }
@@ -145,18 +172,44 @@ class CounterPage extends ConsumerWidget {
       }
     }));
     //final tarif_listesi = ref.watch(tarif_provider);
-    final AsyncValue<int> counter2 = ref.watch(streamprovider); //Stream provider'in gözlemcisi
+    final AsyncValue<int> counter2 =
+        ref.watch(streamprovider(user_value)); //Stream provider'in gözlemcisi
 
     return Scaffold(
         appBar: AppBar(
-          title: Text("Counter Page"),
-          leading: IconButton(
-              //Ekrandaki sayinin default değere(state'e) dönmesini sağlıcak.
-              icon: Icon(Icons.refresh),
-              onPressed: () {
-                ref.invalidate(//invalidate = geçersiz kilmak
-                    counterProvider); //Böylece counterProvider'e default state'ini verdik.
-              }),
+          toolbarHeight: 70,
+          flexibleSpace: SafeArea(
+            child: Row(
+              children: [
+                IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (((context) => (MyApp())))));
+                    },
+                    icon: Icon(Icons.backup_outlined)),
+                SizedBox(
+                  width: 25,
+                  height: 70,
+                ),
+                Text(
+                  "Counter Page",
+                  style: TextStyle(fontSize: 25),
+                ),
+                SizedBox(
+                  width: 25,
+                  height: 70,
+                ),
+                IconButton(
+                    //Ekrandaki sayinin default değere(state'e) dönmesini sağlıcak.
+                    icon: Icon(Icons.refresh),
+                    onPressed: () {
+                      ref.invalidate(//invalidate = geçersiz kilmak
+                          streamprovider(
+                              user_value)); //Böylece counterProvider'e default state'ini verdik.
+                    }),
+              ],
+            ),
+          ),
         ),
         body: Stack(alignment: Alignment.center, children: [
           Column(
@@ -184,18 +237,20 @@ class CounterPage extends ConsumerWidget {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (((context) => (Stream_Provider())))));
                   }),
-                  Text(counter2.when(
-                    data: (int value) => value.toString(), 
-                    error: (Object a,_) => "$a", 
-                    loading: () => 0.toString()))
-                    //TODO: User'in başlama değerini vermesini sağla!
+              Text(counter2.when(
+                  data: (int value) => value.toString(),
+                  error: (Object a, _) => "$a",
+                  loading: () => user_value.toString()))
+              //TODO: User'in başlama değerini vermesini sağla!
             ],
           ),
         ]),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
-              ref.read(counterProvider.notifier).state++; //state'i arttiriyoruz.
+              ref
+                  .read(counterProvider.notifier)
+                  .state++; //state'i arttiriyoruz.
               //State bizim durumumuzda
             }));
   }
