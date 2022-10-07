@@ -98,20 +98,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final controller = TextEditingController();
+  
   @override
   void initstate() {
     super.initState();
-    controller.addListener(() {
-      setState(() {});
-    });
+    controller.addListener(() => setState(() {}));
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,17 +136,16 @@ class _HomePageState extends State<HomePage> {
               controller: controller,
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number, //Klavyeyi ona göre ayarliyor.
-              textInputAction: TextInputAction
-                  .done, //Klavyenin sağ altında çıkan yaziyi ayarliyor.
+              textInputAction: TextInputAction.done, //Klavyenin sağ altında çıkan yaziyi ayarliyor.
               decoration: InputDecoration(
+                  
                   labelText: "Bir numara giriniz", //Input'dan önceki yazi
-                  border: OutlineInputBorder(), //Textfield'in çevresi
                   prefixIcon: Icon(Icons.numbers),
-                  suffixIcon: controller.text.isEmpty
-                      ? Container(
+                  suffixIcon: controller.text.isEmpty ? 
+                        Container(
                           width: 0,
-                        )
-                      : IconButton(
+                        ):
+                       IconButton(
                           icon: Icon(Icons.close),
                           onPressed: () {
                             controller.clear(); //clear fonksiyonu ile controllerin 
