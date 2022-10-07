@@ -88,32 +88,16 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+final controller = TextEditingController();
+final controllerprovider = StateProvider<String>((ref) {
+  return controller.text;
+});
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final controller = TextEditingController();
-  @override
-  void initstate() {
-    super.initState();
-    controller.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
     return Scaffold(
         appBar: AppBar(
           title: Row(
