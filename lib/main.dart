@@ -22,9 +22,11 @@ final boolProvider = StateProvider((ref) {
 });
 
 final streamprovider = StreamProvider.autoDispose.family<int, int>(
+  //Burada iki adet int olmasının sebebi ikinci int girilecek olan 'start' parametresinin türüdür.
+  //streamprovider(6) diyip 'start' parametresini 6 yapabiliriz mesela bu durumda.
   (ref, start) {
     //Kullanicinin başlama değerini girmesi
-    //**için 'family' modifier'ini kullanıcaz.
+    //**için 'family' modifier'ini kullanıcaz.autodispose ile family aynı anda olabiliyor.
     //Bir provider'dan başka bir Provider'a ulaştık
     final wsClient = ref.watch(websocketClientProvider);
     return wsClient.getCounterStream(start);
@@ -54,6 +56,7 @@ class FakeWebsocketClient implements WebsocketClient {
 }
 
 int user_value = 0;
+int temp = 0;
 Future main() async {
   //Firebase kullanacağımızdan dolayı Future ifadesi var.
   WidgetsFlutterBinding.ensureInitialized(); //Firebase bağlantısı
@@ -96,6 +99,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final controller = TextEditingController();
   @override
+  void initstate() {
+    super.initState();
+    controller.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
   void dispose() {
     controller.dispose();
     super.dispose();
@@ -105,7 +116,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Home"),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Home"),
+            ],
+          ),
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -120,18 +136,74 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             SizedBox(
-              width: 30,
+              height: 60,
             ),
             TextField(
               controller: controller,
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.number, //Klavyeyi ona göre ayarliyor.
+              textInputAction: TextInputAction
+                  .done, //Klavyenin sağ altında çıkan yaziyi ayarliyor.
+              decoration: InputDecoration(
+                  labelText: "Bir numara giriniz", //Input'dan önceki yazi
+                  border: OutlineInputBorder(), //Textfield'in çevresi
+                  prefixIcon: Icon(Icons.numbers),
+                  suffixIcon: controller.text.isEmpty
+                      ? Container(
+                          width: 0,
+                        )
+                      : IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            controller.clear(); //clear fonksiyonu ile controllerin 
+                            //**degeri default degerine dondu('')
+                          },
+                        )),
             ),
             IconButton(
                 onPressed: () {
+                  temp = user_value;
                   user_value = int.parse(controller.text);
+
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("Input kaydedildi"),
+                    action: SnackBarAction(
+                      label: "Geri al",
+                      onPressed: () {
+                        user_value = temp;
+                      },
+                    ),
+                  ));
                 },
-                icon: Icon(Icons.add_task))
+                icon: Icon(Icons.add_task)),
+            IconButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(
+                      //ScaffoldMessenger programda herhangi bir bekletme yapmıyor.
+                      //Aşağıdaki print ifadesi hemen çalıştırılıyor.
+                      content: Text("Input2 kaydedildi"),
+                      action: SnackBarAction(
+                        label: "Geri al",
+                        onPressed: () {},
+                      ),
+                    ));
+                  print("Scaffold Messenger'dan sonra");
+                },
+                icon: Icon(Icons.access_time)),
+            IconButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("Input3 kaydedildi"),
+                    action: SnackBarAction(
+                      label: "Geri al",
+                      onPressed: () {},
+                    ),
+                  ));
+                },
+                icon: Icon(Icons.thirteen_mp))
           ],
         ));
   }
 }
-

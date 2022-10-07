@@ -115,7 +115,7 @@ class CounterPage extends ConsumerWidget {
                   data: (int value) => value.toString(),
                   error: (Object a, _) => "$a",
                   loading: () => user_value.toString()))
-              //TODO: User'in başlama değerini vermesini sağla!
+              
             ],
           ),
         ]),
