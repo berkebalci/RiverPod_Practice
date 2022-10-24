@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'Test_Providers/Future_Provider.dart';
 import 'Test_Providers/Stream_Provider.dart';
 
-
 class CounterPage extends ConsumerWidget {
   //ConsumerWidget kısmı widget'in Providerlara erişmesi için  elzem nokta!!
 
@@ -46,8 +45,9 @@ class CounterPage extends ConsumerWidget {
       }
     }));
     //final tarif_listesi = ref.watch(tarif_provider);
-    final AsyncValue<int> counter2 =
-        ref.watch(streamprovider(user_value)); //Stream provider'in gözlemcisi
+    final AsyncValue<int> counter2 = ref.watch(streamprovider(ref
+        .read(userValueprovider.notifier)
+        .state)); //Stream provider'in gözlemcisi
 
     return Scaffold(
         appBar: AppBar(
@@ -77,9 +77,8 @@ class CounterPage extends ConsumerWidget {
                     //Ekrandaki sayinin default değere(state'e) dönmesini sağlıcak.
                     icon: Icon(Icons.refresh),
                     onPressed: () {
-                      ref.invalidate(//invalidate = geçersiz kilmak
-                          streamprovider(
-                              user_value)); //Böylece counterProvider'e default state'ini verdik.
+                      ref.invalidate(streamprovider(
+                          0)); //Böylece counterProvider'e default state'ini verdik.
                     }),
               ],
             ),
@@ -114,8 +113,8 @@ class CounterPage extends ConsumerWidget {
               Text(counter2.when(
                   data: (int value) => value.toString(),
                   error: (Object a, _) => "$a",
-                  loading: () => user_value.toString()))
-              
+                  loading: () =>
+                      ref.read(userValueprovider.notifier).state.toString()))
             ],
           ),
         ]),

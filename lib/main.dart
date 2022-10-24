@@ -1,6 +1,7 @@
 import 'package:firebase_uygulamasi/Counterpage.dart';
 import 'package:firebase_uygulamasi/Test_Providers/Stream_Provider.dart';
 import 'package:firebase_uygulamasi/list_widget.dart';
+import 'package:firebase_uygulamasi/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,8 +56,6 @@ class FakeWebsocketClient implements WebsocketClient {
   }
 }
 
-int user_value = 0;
-int temp = 0;
 Future main() async {
   //Firebase kullanacağımızdan dolayı Future ifadesi var.
   WidgetsFlutterBinding.ensureInitialized(); //Firebase bağlantısı
@@ -89,25 +88,26 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+final userValueprovider = StateProvider<int>((ref) {
+  //user_value'nin provider'i
+  return 0;
+});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
+int temp = 0;
 
-class _HomePageState extends State<HomePage> {
+
+final controllerprovider = StateProvider<String>((ref) {
+  return "";
+});
+
+class HomePage extends ConsumerWidget {
+  HomePage({Key? key}) : super(key: key);
   final controller = TextEditingController();
-  
   @override
-  void initstate() {
-    super.initState();
-    controller.addListener(() => setState(() {}));
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controllertext = ref.watch(controllerprovider);
+    final uservalue = ref.watch(userValueprovider);
 
- 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Row(
@@ -134,6 +134,11 @@ class _HomePageState extends State<HomePage> {
             ),
             TextField(
               controller: controller,
+              onChanged: (value) {
+                debugPrint(value);
+                ref.read(controllerprovider.notifier).state = value;
+              },
+
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number, //Klavyeyi ona göre ayarliyor.
               textInputAction: TextInputAction.done, //Klavyenin sağ altında çıkan yaziyi ayarliyor.
@@ -141,29 +146,40 @@ class _HomePageState extends State<HomePage> {
                   
                   labelText: "Bir numara giriniz", //Input'dan önceki yazi
                   prefixIcon: Icon(Icons.numbers),
-                  suffixIcon: controller.text.isEmpty ? 
-                        Container(
-                          width: 0,
-                        ):
-                       IconButton(
+
+                  suffixIcon: controllertext.isEmpty
+                      ? null
+                      : IconButton(
+
                           icon: Icon(Icons.close),
                           onPressed: () {
-                            controller.clear(); //clear fonksiyonu ile controllerin 
+                            ref.read(controllerprovider.notifier).state = "";
+                            controller.clear();
+                            //clear fonksiyonu ile controllerin
                             //**degeri default degerine dondu('')
                           },
                         )),
             ),
+            
             IconButton(
                 onPressed: () {
-                  temp = user_value;
-                  user_value = int.parse(controller.text);
+                  final temp = ref.read(userValueprovider.notifier).state;
+                  print("Denemeee $controllertext");
+                  ref
+                      .read(userValueprovider.notifier)
+                      .update((state) => int.tryParse(controller.text) ?? 0);
+                  print("${ref.read(userValueprovider.notifier).state}");    
 
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text("Input kaydedildi"),
                     action: SnackBarAction(
                       label: "Geri al",
                       onPressed: () {
-                        user_value = temp;
+                        
+                        ref
+                            .read(userValueprovider.notifier)
+                            .update((state) => temp);
+                        print("${ref.read(userValueprovider.notifier).state}");
                       },
                     ),
                   ));
@@ -196,7 +212,17 @@ class _HomePageState extends State<HomePage> {
                   ));
                 },
                 icon: Icon(Icons.thirteen_mp))
+          
+            ,
+            IconButton(
+            onPressed: (){
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (((context) => Sign_in()))));
+              
+            }, 
+            icon: Icon(Icons.arrow_right_alt_outlined,size: 45,))
           ],
+        
         ));
   }
 }

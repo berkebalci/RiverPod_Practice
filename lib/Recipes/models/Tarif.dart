@@ -33,7 +33,7 @@ class Tarif {
   }
   @override
   String toString() {
-    // TODO: implement toString
+    
     return "Recipe {name: $name , image: $images, rating: $ratings, totalTime: $totalTime}";
 
     }
