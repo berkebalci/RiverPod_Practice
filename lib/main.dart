@@ -95,6 +95,7 @@ final userValueprovider = StateProvider<int>((ref) {
 
 int temp = 0;
 
+
 final controllerprovider = StateProvider<String>((ref) {
   return "";
 });
@@ -140,15 +141,16 @@ class HomePage extends ConsumerWidget {
 
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number, //Klavyeyi ona göre ayarliyor.
-              textInputAction: TextInputAction
-                  .done, //Klavyenin sağ altında çıkan yaziyi ayarliyor.
+              textInputAction: TextInputAction.done, //Klavyenin sağ altında çıkan yaziyi ayarliyor.
               decoration: InputDecoration(
+                  
                   labelText: "Bir numara giriniz", //Input'dan önceki yazi
-                  border: OutlineInputBorder(), //Textfield'in çevresi
                   prefixIcon: Icon(Icons.numbers),
+
                   suffixIcon: controllertext.isEmpty
                       ? null
                       : IconButton(
+
                           icon: Icon(Icons.close),
                           onPressed: () {
                             ref.read(controllerprovider.notifier).state = "";
