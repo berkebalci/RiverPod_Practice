@@ -105,9 +105,10 @@ class HomePage extends ConsumerWidget {
   final controller = TextEditingController();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print("Degisiklik oldu");
     final controllertext = ref.watch(controllerprovider);
     final uservalue = ref.watch(userValueprovider);
-
+    print("Degisiklik oldu 2");
     return Scaffold(
         appBar: AppBar(
           title: Row(
@@ -160,7 +161,6 @@ class HomePage extends ConsumerWidget {
                           },
                         )),
             ),
-            
             IconButton(
                 onPressed: () {
                   final temp = ref.read(userValueprovider.notifier).state;
@@ -168,14 +168,13 @@ class HomePage extends ConsumerWidget {
                   ref
                       .read(userValueprovider.notifier)
                       .update((state) => int.tryParse(controller.text) ?? 0);
-                  print("${ref.read(userValueprovider.notifier).state}");    
+                  print("${ref.read(userValueprovider.notifier).state}");
 
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text("Input kaydedildi"),
                     action: SnackBarAction(
                       label: "Geri al",
                       onPressed: () {
-                        
                         ref
                             .read(userValueprovider.notifier)
                             .update((state) => temp);
@@ -211,18 +210,17 @@ class HomePage extends ConsumerWidget {
                     ),
                   ));
                 },
-                icon: Icon(Icons.thirteen_mp))
-          
-            ,
+                icon: Icon(Icons.thirteen_mp)),
             IconButton(
-            onPressed: (){
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (((context) => Sign_in()))));
-              
-            }, 
-            icon: Icon(Icons.arrow_right_alt_outlined,size: 45,))
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (((context) => Sign_in()))));
+                },
+                icon: Icon(
+                  Icons.arrow_right_alt_outlined,
+                  size: 45,
+                ))
           ],
-        
         ));
   }
 }
