@@ -1,4 +1,5 @@
-import 'dart:async';
+
+import 'package:firebase_uygulamasi/sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_uygulamasi/list_widget.dart';
 import 'package:firebase_uygulamasi/main.dart';
@@ -125,6 +126,11 @@ class CounterPage extends ConsumerWidget {
                   error: (Object a, _) => "",
                   loading: () =>
                       ref.read(userValueprovider.notifier).state.toString()))
+              ,
+              ElevatedButton(onPressed:(){
+                Navigator.of(context).push(MaterialPageRoute(
+                        builder: (((context) => (Sign_in())))));
+              }, child: Text("Sign_in Page"))
             ],
           ),
         ),
