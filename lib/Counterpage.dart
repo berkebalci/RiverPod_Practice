@@ -67,13 +67,9 @@ class CounterPage extends ConsumerWidget {
           toolbarHeight: 70,
           flexibleSpace: SafeArea(
             child: Row(
-              children: [
-                IconButton(
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (((context) => (MyApp())))));
-                    },
-                    icon: Icon(Icons.backup_outlined)),
+              mainAxisAlignment: MainAxisAlignment.center
+              ,children: [
+                
                 SizedBox(
                   width: 25,
                   height: 70,
@@ -90,21 +86,21 @@ class CounterPage extends ConsumerWidget {
                     //Ekrandaki sayinin default değere(state'e) dönmesini sağlıcak.
                     icon: Icon(Icons.refresh),
                     onPressed: () {
-                      ref.invalidate(streamprovider(
-                          0)); //Böylece counterProvider'e default state'ini verdik.
+                      ref.invalidate(streamprovider(0)); //Böylece counterProvider'e default state'ini verdik.
                     }),
               ],
             ),
           ),
         ),
-        body: Stack(alignment: Alignment.center, children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+        body: Container(
+          constraints: BoxConstraints.expand(),
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
             children: [
-              Text("$timeFormatted"),
+              Text("$counter",style: TextStyle(fontSize: 30),),
               Text(
-                "$counter",
+                "",
                 style: Theme.of(context).textTheme.displayMedium,
               ),
               List_Widget(),
@@ -126,12 +122,12 @@ class CounterPage extends ConsumerWidget {
                   }),
               Text(counter2.when(
                   data: (int value) => value.toString(),
-                  error: (Object a, _) => "$a",
+                  error: (Object a, _) => "",
                   loading: () =>
                       ref.read(userValueprovider.notifier).state.toString()))
             ],
           ),
-        ]),
+        ),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
@@ -148,7 +144,6 @@ class Clock extends StateNotifier<DateTime> {
     print("Clock'in ici");
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       state = DateTime.now(); //StateNotifier'in state'i
-      
     });
   }
   late final Timer _timer;

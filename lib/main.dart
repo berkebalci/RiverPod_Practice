@@ -139,7 +139,7 @@ class HomePage extends ConsumerWidget {
                 debugPrint(value);
                 ref.read(controllerprovider.notifier).state = value;
               },
-
+        
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number, //Klavyeyi ona göre ayarliyor.
               textInputAction: TextInputAction.done, //Klavyenin sağ altında çıkan yaziyi ayarliyor.
@@ -147,11 +147,11 @@ class HomePage extends ConsumerWidget {
                   
                   labelText: "Bir numara giriniz", //Input'dan önceki yazi
                   prefixIcon: Icon(Icons.numbers),
-
+        
                   suffixIcon: controllertext.isEmpty
                       ? null
                       : IconButton(
-
+        
                           icon: Icon(Icons.close),
                           onPressed: () {
                             ref.read(controllerprovider.notifier).state = "";
@@ -169,7 +169,7 @@ class HomePage extends ConsumerWidget {
                       .read(userValueprovider.notifier)
                       .update((state) => int.tryParse(controller.text) ?? 0);
                   print("${ref.read(userValueprovider.notifier).state}");
-
+        
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text("Input kaydedildi"),
                     action: SnackBarAction(
